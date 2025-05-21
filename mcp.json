@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "crew_research": {
+      "command": "uv",
+      "env": {
+        "LINKUP_API_KEY": "your_linkup_api_key_here"
+      }
+    }
+  }
+}
