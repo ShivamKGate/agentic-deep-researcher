@@ -6,11 +6,23 @@ import os
 load_dotenv()
 API_KEY = os.getenv("LINKUP_API_KEY")
 
-st.title("Agentic Deep Researcher")
+st.set_page_config(page_title="Agentic Deep Researcher", layout="wide")
 
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
+def reset_chat():
+    st.session_state.messages = []
+
+with st.sidebar:
+    st.markdown("## 💬 Chat History")
+    if st.session_state.messages:
+        for msg in st.session_state.messages:
+            role_icon = "🧑‍💻" if msg["role"] == "user" else "🤖"
+            st.markdown(f"{role_icon} **{msg['role'].capitalize()}**: {msg['content'][:60]}{'...' if len(msg['content']) > 60 else ''}")
+    else:
+        st.info("No messages yet. Start chatting!")
+st.title("Agentic Deep Researcher")
 prompt = st.text_input("Ask a question...")
 
 if prompt:
