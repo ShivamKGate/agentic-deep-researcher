@@ -1,5 +1,6 @@
 from pydantic import BaseModel, Field
 from typing import Type
+from crewai import LLM
 
 class LinkUpSearchInput(BaseModel):
     query: str = Field(description="The search query to perform")
@@ -32,9 +33,21 @@ class Task:
         self.context = context or []
 
 def get_llm_client():
-    return "MockLLMClient"
+    return LLM(
+        model="ollama/deepseek-r1:7b",
+        base_url="http://localhost:11434"
+    )
 
 def run_research(prompt: str):
-    searcher = Agent("Web Searcher", "Searches", "Expert web researcher", [LinkUpSearchTool()])
-    task = Task(f"Search for: {prompt}", agent=searcher)
-    return f"{searcher.role} performs task: {task.description}"
+    client = get_llm_client()
+    tool = LinkUpSearchTool()
+
+    web_searcher = Agent("Web Searcher", "Finds the internet for info", "Expert at search", [tool])
+    analyst = Agent("Research Analyst", "Analyzes the data found", "Synthesizes insights", [])
+    writer = Agent("Technical Writer", "Formats the summary", "Clear writing", [])
+
+    task1 = Task(f"Search: {prompt}", agent=web_searcher)
+    task2 = Task("Analyze search results", agent=analyst, context=[task1])
+    task3 = Task("Write answer", agent=writer, context=[task2])
+
+    return f"Research process started with {web_searcher.role}, {analyst.role}, and {writer.role}"
