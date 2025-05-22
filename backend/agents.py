@@ -1,8 +1,9 @@
 from pydantic import BaseModel, Field
 from typing import Type
-from crewai import LLM, Process
+from crewai import LLM, Process, Crew, Agent, Task
 import os
 from linkup import LinkupClient
+from crewai.tools import BaseTool
 
 # main LLM client model for the agents to use
 def get_llm_client():
@@ -11,18 +12,16 @@ def get_llm_client():
         base_url="http://localhost:11434"
     )
 
+# pipeline for the LinkUp search tool
 class LinkUpSearchInput(BaseModel):
     query: str = Field(description="The search query to perform")
-    depth: str = Field(default="standard", description="Search depth")
-    output_type: str = Field(default="searchResults", description="Output format")
-
-class BaseTool:
-    def _run(self, *args, **kwargs):
-        raise NotImplementedError
-
+    depth: str = Field(default="standard", description="Depth of search: 'standard' or 'deep'")
+    output_type: str = Field(default="searchResults", description="Output type: 'searchResults', 'sourcedAnswer', or 'structured'")
+       
+# LinkUp search tool for web search       
 class LinkUpSearchTool(BaseTool):
     name: str = "LinkUp Search"
-    description: str = "Search the web using LinkUp"
+    description: str = "Search the web for information using LinkUp and return comprehensive results"
     args_schema: Type[BaseModel] = LinkUpSearchInput
 
     def __init__(self):
@@ -30,9 +29,16 @@ class LinkUpSearchTool(BaseTool):
 
     def _run(self, query: str, depth: str = "standard", output_type: str = "searchResults") -> str:
         try:
-            client = LinkupClient(api_key=os.getenv("LINKUP_API_KEY"))
-            results = client.search(query=query, depth=depth, output_type=output_type)
-            return str(results)
+            # initializing LinkUp client with API key from environment variables
+            linkup_client = LinkupClient(api_key=os.getenv("LINKUP_API_KEY"))
+
+            # starting search
+            search_response = linkup_client.search(
+                query=query,
+                depth=depth,
+                output_type=output_type
+            )
+            return str(search_response)
         except Exception as e:
             return f"Error occurred while searching: {str(e)}"
 
@@ -105,6 +111,7 @@ def create_research_crew(query: str):
     )
     return crew
 
+"""
 class Agent:
     def __init__(self, role, goal, backstory, tools=None):
         self.role = role
@@ -125,6 +132,7 @@ class Crew:
 
     def kickoff(self):
         return f"Tasks executed by: {[t.agent.role for t in self.tasks]}"
+"""
 
 # running the research process through the crew of agents
 def run_research(query: str):
