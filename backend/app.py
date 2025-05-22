@@ -2,7 +2,6 @@ import streamlit as st
 from agents import run_research
 from dotenv import load_dotenv
 import os
-import asyncio  
 
 load_dotenv()
 LINKUP_API_KEY = os.getenv("LINKUP_API_KEY")
@@ -57,7 +56,7 @@ if prompt := st.chat_input("Ask to research about any topic..."):
         os.environ["LINKUP_API_KEY"] = LINKUP_API_KEY
         with st.spinner("Researching... This may take a moment..."):
             try:
-                result = asyncio.run(run_research(prompt))
+                result = run_research(prompt)
                 response = result
             except Exception as e:
                 response = f"An error occurred: {str(e)}"
