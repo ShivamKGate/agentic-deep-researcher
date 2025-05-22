@@ -1,6 +1,8 @@
 from pydantic import BaseModel, Field
 from typing import Type
 from crewai import LLM
+import os
+from linkup import LinkupClient
 
 class LinkUpSearchInput(BaseModel):
     query: str = Field(description="The search query to perform")
@@ -16,8 +18,16 @@ class LinkUpSearchTool(BaseTool):
     description: str = "Search the web using LinkUp"
     args_schema: Type[BaseModel] = LinkUpSearchInput
 
+    def __init__(self):
+        super().__init__()
+
     def _run(self, query: str, depth: str = "standard", output_type: str = "searchResults") -> str:
-        return f"Mock search results for: {query}"
+        try:
+            client = LinkupClient(api_key=os.getenv("LINKUP_API_KEY"))
+            results = client.search(query=query, depth=depth, output_type=output_type)
+            return str(results)
+        except Exception as e:
+            return f"Error occurred while searching: {str(e)}"
 
 class Agent:
     def __init__(self, role, goal, backstory, tools=None):
