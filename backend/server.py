@@ -1,4 +1,4 @@
-from backend.agents import run_research
+from agents import run_research
 
-def handler(query):
-    return run_research(query)
+def handler(prompt: str):
+    return run_research(prompt)

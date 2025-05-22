@@ -1,2 +1,2 @@
-def run_research(query):
-    return f"Researching {query}"
+def run_research(prompt: str):
+    return f"Researching {prompt}"
