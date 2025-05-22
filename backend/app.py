@@ -1,6 +1,8 @@
 import streamlit as st
+from agents import run_research
 
 st.title("Agentic Deep Researcher")
 query = st.text_input("Enter your query")
 if query:
-    st.write(f"You asked: {query}")
+    response = run_research(query)
+    st.write(response)
