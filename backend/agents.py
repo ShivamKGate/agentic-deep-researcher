@@ -1,8 +1,15 @@
 from pydantic import BaseModel, Field
 from typing import Type
-from crewai import LLM
+from crewai import LLM, Process
 import os
 from linkup import LinkupClient
+
+# main LLM client model for the agents to use
+def get_llm_client():
+    return LLM(
+        model="ollama/deepseek-r1:7b",
+        base_url="http://localhost:11434"
+    )
 
 class LinkUpSearchInput(BaseModel):
     query: str = Field(description="The search query to perform")
@@ -89,6 +96,15 @@ def create_research_crew(query: str):
         context=[analysis_task]
     )
 
+    # final crew assembly with the agents and tasks
+    crew = Crew(
+        agents=[web_searcher, research_analyst, technical_writer],
+        tasks=[search_task, analysis_task, writing_task],
+        verbose=True,
+        process=Process.sequential
+    )
+    return crew
+
 class Agent:
     def __init__(self, role, goal, backstory, tools=None):
         self.role = role
@@ -102,11 +118,6 @@ class Task:
         self.agent = agent
         self.context = context or []
 
-def get_llm_client():
-    return LLM(
-        model="ollama/deepseek-r1:7b",
-        base_url="http://localhost:11434"
-    )
 class Crew:
     def __init__(self, agents, tasks):
         self.agents = agents
@@ -115,14 +126,8 @@ class Crew:
     def kickoff(self):
         return f"Tasks executed by: {[t.agent.role for t in self.tasks]}"
 
-def run_research(prompt: str):
-    client = get_llm_client()
-    tool = LinkUpSearchTool()
-
-    web_searcher = Agent("Web Searcher", "Finds the internet for info", "Expert at search", [tool])
-    analyst = Agent("Research Analyst", "Analyzes the data found", "Synthesizes insights", [])
-    writer = Agent("Technical Writer", "Formats the summary", "Clear writing", [])
-
-    task1 = Task(f"Search: {prompt}", agent=web_searcher)
-    task2 = Task("Analyze search results", agent=analyst, context=[task1])
-    task3 = Task("Write answer", agent=writer, context=[task2])
+# running the research process through the crew of agents
+def run_research(query: str):
+    crew = create_research_crew(query)
+    result = crew.kickoff()
+    return result.raw
