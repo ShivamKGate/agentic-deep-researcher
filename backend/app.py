@@ -11,11 +11,15 @@ st.title("Agentic Deep Researcher")
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-query = st.text_input("Enter your query")
-if query:
-    st.session_state.messages.append({"role": "user", "content": query})
-    response = run_research(query)
+prompt = st.text_input("Ask a question...")
+
+if prompt:
+    st.session_state.messages.append({"role": "user", "content": prompt})
+    if not API_KEY:
+        response = "API key missing. Please set LINKUP_API_KEY in your .env file."
+    else:
+        response = run_research(prompt)        
     st.session_state.messages.append({"role": "assistant", "content": response})
 
 for msg in st.session_state.messages:
-    st.markdown(f"**{msg['role']}**: {msg['content']}")
+    st.write(f"**{msg['role'].capitalize()}**: {msg['content']}")
