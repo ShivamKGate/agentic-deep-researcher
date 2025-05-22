@@ -27,11 +27,19 @@ prompt = st.text_input("Ask a question...")
 
 if prompt:
     st.session_state.messages.append({"role": "user", "content": prompt})
-    if not API_KEY:
-        response = "API key missing. Please set LINKUP_API_KEY in your .env file."
+    LINKUP_API_KEY = os.getenv("LINKUP_API_KEY")
+    if not LINKUP_API_KEY:
+        response = "API Key not found. Please set it in a `.env` file."
     else:
-        response = run_research(prompt)        
+        os.environ["LINKUP_API_KEY"] = LINKUP_API_KEY
+        with st.spinner("Researching... This may take a moment..."):
+            try:
+                result = run_research(prompt)
+                response = result
+            except Exception as e:
+                response = f"An error occurred: {str(e)}"
     st.session_state.messages.append({"role": "assistant", "content": response})
-
+    st.success("Research completed!")
+    
 for msg in st.session_state.messages:
     st.write(f"**{msg['role'].capitalize()}**: {msg['content']}")
