@@ -37,6 +37,13 @@ def get_llm_client():
         model="ollama/deepseek-r1:7b",
         base_url="http://localhost:11434"
     )
+class Crew:
+    def __init__(self, agents, tasks):
+        self.agents = agents
+        self.tasks = tasks
+
+    def kickoff(self):
+        return f"Tasks executed by: {[t.agent.role for t in self.tasks]}"
 
 def run_research(prompt: str):
     client = get_llm_client()
@@ -50,4 +57,5 @@ def run_research(prompt: str):
     task2 = Task("Analyze search results", agent=analyst, context=[task1])
     task3 = Task("Write answer", agent=writer, context=[task2])
 
-    return f"Research process started with {web_searcher.role}, {analyst.role}, and {writer.role}"
+    crew = Crew([web_searcher, analyst, writer], [task1, task2, task3])
+    return crew.kickoff()
