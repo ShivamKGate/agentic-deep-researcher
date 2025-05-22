@@ -44,7 +44,7 @@ class LinkUpSearchTool(BaseTool):
 
 # crew of the agents to perform research, analyze, and write
 def create_research_crew(query: str):
-    linkup_tool = LinkUpSearchTool()
+    linkup_search_tool = LinkUpSearchTool()
     client = get_llm_client()
 
     # web searcher agent
@@ -54,15 +54,15 @@ def create_research_crew(query: str):
         backstory="An expert at formulating search queries and retrieving relevant information. Passes the results to the 'Research Analyst' only.",
         verbose=True,
         allow_delegation=True,
-        tools=[linkup_tool],
+        tools=[linkup_search_tool],
         llm=client
     )
 
     # research analyst agent
     research_analyst = Agent(
         role="Research Analyst",
-        goal="Analyze and synthesize raw information into structured insights, with citations.",
-        backstory="An expert in identifying patterns and extracting key insights.",
+        goal="Analyze and synthesize raw information into structured insights, along with source links (urls) as citations.",
+        backstory="An expert at analyzing information, identifying patterns, and extracting key insights. If required, can delagate the task of fact checking/verification to 'Web Searcher' only. Passes the final results to the 'Technical Writer' only.",
         verbose=True,
         allow_delegation=True,
         llm=client
@@ -71,34 +71,34 @@ def create_research_crew(query: str):
     # technical writer agent
     technical_writer = Agent(
         role="Technical Writer",
-        goal="Create well-structured, clear, and comprehensive responses in markdown with citations.",
-        backstory="An expert communicator of technical knowledge.",
+        goal="Create well-structured, clear, and comprehensive responses in markdown format, with citations/source links (urls).",
+        backstory="An expert at communicating complex information in an accessible way.",
         verbose=True,
         allow_delegation=False,
         llm=client
     )
 
-    # main search task for the web searcher agent
+    # search task for the web searcher agent
     search_task = Task(
         description=f"Search for comprehensive information about: {query}.",
         agent=web_searcher,
         expected_output="Detailed raw search results including sources (urls).",
-        tools=[linkup_tool]
+        tools=[linkup_search_tool]
     )
 
     # analysis task for the research analyst agent
     analysis_task = Task(
-        description="Analyze the raw search results and prepare a structured analysis.",
+        description="Analyze the raw search results, identify key information, verify facts and prepare a structured analysis.",
         agent=research_analyst,
-        expected_output="A structured analysis with verified facts and source links.",
+        expected_output="A structured analysis of the information with verified facts and key insights, along with source links",
         context=[search_task]
     )
 
     # writing task for the technical writer agent
     writing_task = Task(
-        description="Create a comprehensive answer with citations.",
+        description="Create a comprehensive, well-organized response based on the research analysis.",
         agent=technical_writer,
-        expected_output="A markdown-formatted, complete and well-cited response.",
+        expected_output="A clear, comprehensive response that directly answers the query with proper citations/source links (urls).",
         context=[analysis_task]
     )
 
