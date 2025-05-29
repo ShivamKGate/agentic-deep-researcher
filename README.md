@@ -1,6 +1,6 @@
 # Agentic Deep Researcher
 
-This is a `MCP`-powered multi-agent researcher that performs real-time web research using agents through CrewAI, LinkUp API, and DeepSeek R1 as a local LLM. It uses a team of agents to web search, analyze the research, and finally synthesize the information into structured, cited insights.
+This is a `MCP`-powered multi-agent deep researcher that performs real-time web research using agents through CrewAI, LinkUp API, and DeepSeek R1 as a local LLM. It uses a team of agents to web search, analyze the research, and finally synthesize the information into structured, cited insights.
 It orchestrates three roles:
 
 - **Web Searcher**  
@@ -72,7 +72,7 @@ Under the hood, the pipeline is defined in `backend/agents.py` and runs sequenti
 streamlit run backend/app.py
 ```
 
-Open your browser at `http://localhost:8501` to chat with the research agent.
+Open your browser at `http://localhost:8501` to chat with the multi-agent deep researcher!
 
 ### FastMCP RPC Server
 
@@ -112,6 +112,25 @@ root/
 ## Contributing
 
 Contributions, issues, and feature requests are welcome! Please open an issue or pull request on the GitHub repository.
+
+---
+
+## Future Implementations
+
+- **Full Async & Reactive Pipeline**  
+  Convert all research steps (web search, analysis, writing) to non-blocking async operations with event-driven scheduling and responsive I/O for improved throughput.
+
+- **Enhanced Error Handling & Retry Mechanisms**  
+  Implement granular retry strategies, circuit-breaker patterns, backoff policies, and comprehensive structured logging to handle transient and persistent failures at each step.
+
+- **Memory Agent**  
+  Introduce a dedicated agent to capture and persist conversational context and research state into the LLM’s memory store for long-term continuity through the agents' sequential run.
+
+- **Feedback Agent**  
+  Add an agent to validate and refine outputs from each agent in parallel by comparing raw results against quality criteria and user feedback loops before final drafting.
+
+- **Cleaner & Customizable Outputs**  
+  Introduce configurable Markdown templates, support for HTML/PDF exports, and user-defined formatting options for polished, presentation-ready reports.
 
 ---
 
