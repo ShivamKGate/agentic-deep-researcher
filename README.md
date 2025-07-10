@@ -1,3 +1,5 @@
+[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/shivamkgate-agentic-deep-researcher-badge.png)](https://mseep.ai/app/shivamkgate-agentic-deep-researcher)
+
 # Agentic Deep Researcher
 
 This is a `MCP`-powered multi-agent deep researcher that performs real-time web research using agents through CrewAI, LinkUp API, and DeepSeek R1 as a local LLM. It uses a team of agents to web search, analyze the research, and finally synthesize the information into structured, cited insights.
